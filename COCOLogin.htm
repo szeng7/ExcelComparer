@@ -1,0 +1,221 @@
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+
+<SCRIPT Language='Javascript'>
+var strDebug=""
+function handleError(msg,url,line) {
+  var s="An Error Has Occurred!\n\n"+
+        "Please jot down the following information to help us track it down.\n\n"+
+        "Page:        "+document.location.href.substr(document.location.href.lastIndexOf("/")+1)+"\n"+
+        "Message:  "+msg+"\n"+
+        "Line:          "+line+"\n\n"+
+        "We are very sorry you experienced a problem and will do our best to correct it.\n\n"+
+        "Please report the problem by sending us a feedback form, and include the page, message,\n"+
+        "and line reported above.  You should not continue with the task you were performing when\n"+
+        "this error occurred -- it will probably fail, perhaps without warning."
+  if (strDebug!="") { s+="\n\nDebug:\n"+strDebug }
+  alert(s)
+  return false
+  }
+window.onerror=handleError
+</SCRIPT>
+<script language='javascript'>
+  var SessionLen  =30*60000-60000
+  </script>
+
+
+<SCRIPT LANGUAGE="JavaScript">
+var ServerDate="06/04/2018"
+var FirstDate= "01JUL2017"
+var Visits= {'V1':'01','V2':'02','N':'03'}
+var ClinicLets= {'BCM':'A','DUKE':'B','EU':'C','MICH':'C','IC':'D','LIJ':'G','PNW':'G','TU':'H','LSU':'H','NCC':'K','NJC':'L','NNEC':'M','NYC':'N','NYMC':'O','OSU':'P','UAB':'P','STL':'Q','STV':'R','UCSF':'S','UMKC':'S','UMSF':'T','UCSD':'U','UAZ':'V','UVA':'W','DCC':'X','ALA':'Y'}
+
+function pz(n) { if ( (parseInt(n,10)>0) && (parseInt(n,10)<10) ) { return "0"+n } else { return n } }
+
+//------------------------------------------------------------------------
+function ValidateHeader(FormRoot) {
+  if ( (ff(FormRoot+"01").value != ff("LoginClinic").value) && (ff(FormRoot+"01").value != 'TEST') ) 
+    { AddErr("Clinic entered in item 1 does not match the login clinic.") }
+  if (ff(FormRoot+"02").value.toUpperCase() !=  formID.toUpperCase()) {
+    if (!confirm("The entered participant ID is not the one selected from the Participant Table!  Continue Anyway?")) 
+      { AddErr("Participant ID not entered as selected from the Participant Table.") }
+    }
+  else { if (ff(FormRoot+"03").value.toUpperCase() != formCD.toUpperCase()) { AddErr("Incorrect name code entered for this participant ID.") } }
+
+  // section a
+  FlagBlankFields("E",FormRoot+"01;"+FormRoot+"02;"+FormRoot+"03;"+FormRoot+"04;"+FormRoot+"05")
+  }
+//------------------------------------------------------------------------
+
+//------------------------------------------------------------------------
+function ValidateQHeader(FormRoot,ClinicFld) {
+  if ( (ff(FormRoot+ClinicFld).value != ff("LoginClinic").value) && (ff(FormRoot+ClinicFld).value != 'TEST') ) 
+    { AddErr("Clinic entered in item "+ClinicFld+" does not match the login clinic.") }
+  if (ff(FormRoot+"00a").value.toUpperCase() !=  formID.toUpperCase()) {
+    if (!confirm("The entered participant ID is not the one selected from the Participant Table!  Continue Anyway?")) 
+      { AddErr("Participant ID not entered as selected from the Participant Table.") }
+    }
+  else { if (ff(FormRoot+"00b").value.toUpperCase() != formCD.toUpperCase()) { AddErr("Incorrect name code entered for this participant ID.") } }
+
+  // admin box
+  FlagBlankFields("E",FormRoot+"00a;"+FormRoot+"00b;"+FormRoot+"00c;"+FormRoot+"00d")
+  }
+//------------------------------------------------------------------------
+
+//------------------------------------------------------------------------
+function PINCheck(fldnames) {
+  // check PINs entered in fields specified by fldnames to confirm they match the login clinic
+  var clinicLet=trim(ff("LoginPIN").value.toUpperCase()).substr(0,1)
+  if (clinicLet=="X") { return true }  // ignore if login clinic is CC
+  var flds = fldnames.split(";")
+  for (var i=0; i<flds.length; i++) {
+    f=ff(flds[i])
+    var PINLet=trim(f.value.toUpperCase()).substr(0,1)
+    if (PINLet=="") { return true }
+    if (PINLet!=clinicLet) { AddErr("PIN specified in item "+f.dsID2+" does not match the login clinic.") }
+    }
+  }
+//------------------------------------------------------------------------
+
+//------------------------------------------------------------------------
+function CheckDates(D1Str,D2Str,Cond) {
+  var ret=false
+  var D1=dsDateStringToDate(D1Str)
+  var D2=dsDateStringToDate(D2Str)
+  var D1T=D1.getTime()+0
+  var D2T=D2.getTime()+0
+  if ((D1!=badDate) && (D2!=badDate)) {
+    switch (Cond) {
+      case '>' : if (D1T>D2T)  { ret=true }; break;
+      case '>=': if (D1T>=D2T) { ret=true }; break;
+      case '=' : if (D1T==D2T) { ret=true }; break;
+      case '<' : if (D1T<D2T)  { ret=true }; break;
+      case '<=': if (D1T<=D2T) { ret=true }; break;
+      case '!=': if (D1T!=D2T) { ret=true }; break;
+      case '<>': if (D1T!=D2T) { ret=true }; break;
+      }
+    }
+  return ret
+  }
+//------------------------------------------------------------------------
+
+//------------------------------------------------------------------------
+function SpecifyCheck(ItemRoot,OtherItem,SpecItem,OtherText) {
+// alert("SpecifyCheck\n\n"+"ItemRoot="+ItemRoot+"\nOtherItem="+OtherItem+"\nSpecItem="+SpecItem+"\nOtherText="+OtherText)
+  if (checkboxField(document.getElementById(ItemRoot+OtherItem))) {
+    if (checkboxVal(document.getElementById(ItemRoot+OtherItem))=="Y") {
+      if (IsFieldBlank(document.getElementById(SpecItem))) { AddErr("No '"+OtherText+"' specified in item "+OtherItem+".") }
+      }
+    else {
+      if (IsFieldNotBlank(document.getElementById(SpecItem))) { AddErr("'"+OtherText+"' specified in item "+OtherItem+" but '"+OtherText+"' not checked.") }
+      }
+    }
+  else { 
+    if (radioVal(document.getElementById(ItemRoot+OtherItem))==SpecItem) {
+      if (IsFieldBlank(document.getElementById(ItemRoot+OtherItem+"s"))) { AddErr("No '"+OtherText+"' specified in item "+OtherItem+".") }
+      }
+    else {
+      if (IsFieldNotBlank(document.getElementById(ItemRoot+OtherItem+"s"))) { AddErr("'"+OtherText+"' specified in item "+OtherItem+" but '"+OtherText+"' not selected.") }
+      }
+    }
+  }
+//------------------------------------------------------------------------
+
+//------------------------------------------------------------------------
+function ff(name) { return document.getElementById(name) }
+//------------------------------------------------------------------------
+
+//------------------------------------------------------------------------
+function COCOStatus() {
+  // show time left until session expires
+  var ret=""
+  var Cur=new Date()
+  var TimeLeft=SessionLen-(Cur.getTime()-SessionStart.getTime())
+  // give warning at 5-minute mark
+  if ((TimeLeft<300000) && (SessionFlag==0)) { SessionFlag=1; alert("You will be logged out of the server in approximately five minutes!") }
+  var Mins=Math.floor(TimeLeft/60000)
+  var Secs=+Math.floor((TimeLeft-60000*Mins)/1000)
+  var MinsStr=""+Mins; var SecsStr=""+Secs
+  if (Mins<10) { MinsStr="0"+MinsStr }
+  if (Secs<10) { SecsStr="0"+SecsStr }
+  if (EditMode==1) { ret += "<b>Form Edit</b>" } else { ret += "<b>Pass "+PassNumber+" of "+PassCount+"</b>" }
+  ret += "<br>Logout In <b style='color:cyan'>" + MinsStr+":"+SecsStr  + "</b>"
+  return ret
+  }
+//------------------------------------------------------------------------
+
+var SessionStart=new Date()
+var SessionFlag =0
+
+</SCRIPT>
+
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="COCOdata.css">
+<title>COCO Select Participant</title>
+
+<script language='JavaScript'>
+var StudyName="COCO"
+var pts = new Array() 
+function selPt(ID,CD) {
+   document.all.Heading.innerHTML="Enter Name Code For Participant "+ID
+   document.all.NameCDStart.style.display="inline"
+   document.all.FormStart.style.display="none"
+   document.all.ptid.value=ID
+   document.all.namecode.focus()
+   }
+function checkCode() { //check if login or not
+  var id=document.all.ptid.value.toUpperCase(); var tmpcd=document.all.namecode.value.toUpperCase()
+  var cd=""
+  for (var i=0; i<tmpcd.length; i++) { 
+    x = String.fromCharCode(tmpcd.charCodeAt(i)+1)
+    cd += x
+    alert(x)
+    alert(tmpcd.charCodeAt(i)+1)
+  }
+  if (pts[id]==cd) { location.href=StudyName+"Forms.asp?ID="+id+"&CD="+tmpcd 
+    //alert(tmpcd) //SZENG
+    //alert(cd) //T[FOH
+    //alert(pts[id]) //T[FOH
+    //alert(StudyName) //COCO
+  }
+  else {  
+    alert("Incorrect Name Code For Participant "+id+"!")
+    if (document.all.NameCDStart) { 
+      document.all.Heading.innerHTML="Click on Participant ID"
+      document.all.namecode.value=""
+      document.all.FormStart.style.display="inline"
+      document.all.NameCDStart.style.display="none"
+      }
+    return false
+    }
+  }
+</script>
+</head>
+
+<body>
+<span style='width: 100%; filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=1,StartColorStr=#FFFFFF,EndColorStr=hotpink)'><table width='100%' border='0' cellpadding='0' cellspacing='0'><tr><td rowspan='2' width='1'><a href='http://www.lungusa.org'><img src='\Secure\Common\ala_logo_color(trans).gif' alt='\Secure\Common\ala_logo_color(trans).gif' align='left' style='border: medium none'></a></td>
+    <td style='vertical-align:bottom; text-align:left; '><a href='http://www.cctrials.org/alaacrc' target='_top'><div style='font-family:serif; color:black; font-size:8pt;'>&nbsp;Asthma Clinical Research Centers (ALA-ACRC)</div></a></td>
+    <td rowspan='2' style='text-align:right; '><a href='http://www.jhcct.org/Secure/COCO/COCOHome.asp' target='_top'><span style='font-family:serif; color:maroon; font-size:22pt; font-weight:bold;'>COCO&nbsp;</span></a></td></tr><tr><td style='vertical-align:top; text-align:left; '><a href='http://www.jhcct.org/Secure/COCO/COCOHome.asp' target='_top'><div style='font-family:serif; color:black; font-size:8pt;'>&nbsp;Chronic Refractory <u>Co</u>ugh <u>Co</u>hort&nbsp;</div></a></td></tr>
+</table></span>
+<hr style='background-color: rgb(0,0,128); color: rgb(0,0,128)'>
+<center><font style='font-size:9pt;'>Simon Zeng [DCC/X80] (<a href='\Secure\Directory\ACRCLogin.asp?Logout=YES&GoTo=http://www.jhcct.org/Secure/COCO/COCOHome.asp'>Logout</a>)</font></center><br><Center><font size='5' color='purple'><B>Select Participant For Data Entry</B></font><BR><BR><script language='javascript'>
+  pts['OX006']='KNIBO'
+  pts['OX009']='TNLZS'
+  pts['OX100']='CIMTX'
+  pts['OX124']='BOEJF'
+  pts['OX180']='T[FOH'
+  pts['OX181']='NXPMG'
+</script>
+<BR><Center><B>Participants Registered For Clinic <span style='color:purple'>DCC</span></B></Center><BR><BR>
+<br><br><center>Enter Participant ID and Name Code<br>(<a href='?mode=list'>switch to list mode</a>)</center><br><br>
+<form onsubmit='return checkCode()'><center><table border='0'>
+<tr><td>ID:</td><td><input name='ptid' size='8'></td></tr>
+<tr><td>Name Code:</td><td><input name='namecode' size='8'></td></tr>
+<tr><td colspan='2'>&nbsp;</td></tr>
+<tr><td></td><td><button type="button" onclick='checkCode()'>Continue</button></td></tr> 
+</table></center></form><br>
+
+
+</body>
+</html>
+ 

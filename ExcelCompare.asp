@@ -176,15 +176,36 @@ If Request.Form <> "" Then
             diff2 = cellComparison2(sheet, Request.Form("File1"), Request.Form("File2"))
             index2 = getValues2(sheet, Request.Form("File1"), Request.Form("File2"))
 
+            diffsplit = Split(diff1, "*")
+            indexsplit = Split(index1, "*") 'row, column, row, column'
+            diffsplit2 = Split(diff2, "*")
+            indexsplit2 = Split(index2, "*") 'row, column, row, column'
+
+            Dim I, value, X, Y, value2, finaldiff
+            I = 0
+            J = 0
+            Do While I < Ubound(diffsplit)
+                If indexsplit(J) = indexsplit2(J) Then
+                    If indexsplit(J+1) = indexsplit2(J+1) Then
+                        value = diffsplit(I)
+                        value2 = diffsplit2(I)
+                        If StrComp(value, value2) <> 0 Then
+                            X = indexsplit(J)
+                            Y = indexsplit(J+1)
+                            finaldiff = finaldiff & "(" & X & "," & Y & "): " & value & " vs " & value2 & "|"
+                        End If
+                    End If
+                End If
+                I = I + 1
+                J = J + 2
+                Loop
+
             Pr "<tr>"
             Pr "<td>" & sheet & "</td>"
             Pr "<td>" & sheet & "</td>"
-            If Len(diff1) > 0 Then
+            If Len(finaldiff) > 0 Then
                 Pr "<td><Form action='sheetCompare.asp' method='post'>"
-                Pr "<input type='hidden' name='diff1' value='"&diff1&"'>"
-                Pr "<input type='hidden' name='index1' value='"&index1&"'>"
-                Pr "<input type='hidden' name='diff2' value='"&diff2&"'>"
-                Pr "<input type='hidden' name='index2' value='"&index2&"'>"
+                Pr "<input type='hidden' name='finaldiff' value='"&finaldiff&"'>"
                 Pr "<input type='hidden' name='sheet' value='"&sheet&"'>"
                 Pr "<input type='hidden' name='file1' value='"&Request.Form("file1")&"'>"
                 Pr "<input type='hidden' name='file2' value='"&Request.Form("file2")&"'>"
@@ -193,6 +214,7 @@ If Request.Form <> "" Then
             Else
                 Pr "<td></td></tr>"
                 End If
+            finaldiff=""
         Else 
             Pr "<tr>"
             Pr "<td>" & sheet & "</td>"
@@ -203,7 +225,7 @@ If Request.Form <> "" Then
         Next
     For Each sheet in Split(File2Sheets,":")
         If Instr(File1Sheets, sheet) Then
-            dim x
+            dim p
         Else
             Pr "<tr>"
             Pr "<td></td>"

@@ -19,19 +19,35 @@ const adlockpessimistic = 2
 const adcmdtext = &H0001
 const adcmdtable = &H0002
 
-
-function cellComparison(sheetName, file1, file2)
+'get values of all cells in a file as a string delimited by *'
+function getValues(sheetName, file)
     Dim differences
-    Dim CS1, RS1, SQ, CS2, RS2
+    Dim CS1, RS1, SQ
     differences = ""
-    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file1) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
-    CS2 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file2) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
+    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
     SQ = "SELECT * FROM [" & sheetName & "]"
     Set RS1 = Server.CreateObject("ADODB.RecordSet")
-    Set RS2 = Server.CreateObject("ADODB.RecordSet")
     RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
-    RS2.Open SQ, CS2, adopenforwardonly, adlockreadonly, adcmdtext
-    dim lineNum, differences1, differences2
+    Do While Not RS1.EOF 
+        For Each F in RS1.Fields 
+            differences = differences & RS1(F.Name) & "*" 
+            Next
+        RS1.MoveNext
+        Loop
+        
+    getValues = differences
+    End Function
+
+'get indexes of all cells in a file as a string delimited by *'
+function getIndex(sheetName, file)
+    Dim differences
+    Dim CS1, RS1, SQ
+    differences = ""
+    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
+    SQ = "SELECT * FROM [" & sheetName & "]"
+    Set RS1 = Server.CreateObject("ADODB.RecordSet")
+    RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
+    dim lineNum
     lineNum=1
     Do While Not RS1.EOF 
         Dim fieldNum
@@ -39,97 +55,13 @@ function cellComparison(sheetName, file1, file2)
         lineNum=lineNum+1
         For Each F in RS1.Fields 
             fieldNum=fieldNum+1
-            differences1 = differences1 & RS1(F.Name) & "*" 
-            Next
-        RS1.MoveNext
-        Loop
-        
-    cellComparison = differences1
-    End Function
-
-function cellComparison2(sheetName, file1, file2)
-    Dim differences
-    Dim CS1, RS1, SQ, CS2, RS2
-    differences = ""
-    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file1) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
-    CS2 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file2) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
-    SQ = "SELECT * FROM [" & sheetName & "]"
-    Set RS1 = Server.CreateObject("ADODB.RecordSet")
-    Set RS2 = Server.CreateObject("ADODB.RecordSet")
-    RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
-    RS2.Open SQ, CS2, adopenforwardonly, adlockreadonly, adcmdtext
-    dim lineNum, differences1, differences2
-    lineNum=1
-    Do While Not RS2.EOF 
-        Dim fieldNum
-        fieldNum=0 'column number'
-        lineNum=lineNum+1
-        For Each F in RS2.Fields 
-            fieldNum=fieldNum+1
-            differences1 = differences1 & RS2(F.Name) & "*" 
-            Next
-        RS2.MoveNext
-        Loop
-        
-    cellComparison2 = differences1
-    End Function
-
-function getValues(sheetName, file1, file2)
-    Dim differences
-    Dim CS1, RS1, SQ, CS2, RS2
-    differences = ""
-    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file1) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
-    CS2 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file2) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
-    SQ = "SELECT * FROM [" & sheetName & "]"
-    Set RS1 = Server.CreateObject("ADODB.RecordSet")
-    Set RS2 = Server.CreateObject("ADODB.RecordSet")
-    RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
-    RS2.Open SQ, CS2, adopenforwardonly, adlockreadonly, adcmdtext
-    dim lineNum, differences1, differences2
-    lineNum=1
-    Do While Not RS1.EOF 
-        Dim fieldNum
-        fieldNum=0 'column number'
-        lineNum=lineNum+1
-        For Each F in RS1.Fields 
-            fieldNum=fieldNum+1
-            differences1 = differences1 & lineNum & "*" & fieldNum & "*" 
+            differences = differences & lineNum & "*" & fieldNum & "*" 
             Next
         RS1.MoveNext
         Loop
 
-
-    getValues = differences1
+    getIndex = differences
     End Function
-
-function getValues2(sheetName, file1, file2)
-    Dim differences
-    Dim CS1, RS1, SQ, CS2, RS2
-    differences = ""
-    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file1) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
-    CS2 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file2) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
-    SQ = "SELECT * FROM [" & sheetName & "]"
-    Set RS1 = Server.CreateObject("ADODB.RecordSet")
-    Set RS2 = Server.CreateObject("ADODB.RecordSet")
-    RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
-    RS2.Open SQ, CS2, adopenforwardonly, adlockreadonly, adcmdtext
-    dim lineNum, differences1, differences2
-    lineNum=1
-    Do While Not RS2.EOF 
-        Dim fieldNum
-        fieldNum=0 'column number'
-        lineNum=lineNum+1
-        For Each F in RS2.Fields 
-            fieldNum=fieldNum+1
-            differences1 = differences1 & lineNum & "*" & fieldNum & "*" 
-            Next
-        RS2.MoveNext
-        Loop
-
-
-    getValues2 = differences1
-    End Function
-
 
 Sub Pr(S)
     Response.Write S
@@ -170,29 +102,29 @@ If Request.Form <> "" Then
     Pr "<td><b>Differences</b></td></tr>"
     For Each sheet in Split(File1Sheets,":")
         If Instr(File2Sheets, sheet) Then
-            Dim diff1, parts, index1, diff2, index2
-            diff1 = cellComparison(sheet, Request.Form("File1"), Request.Form("File2"))
-            index1 = getValues(sheet, Request.Form("File1"), Request.Form("File2"))
-            diff2 = cellComparison2(sheet, Request.Form("File1"), Request.Form("File2"))
-            index2 = getValues2(sheet, Request.Form("File1"), Request.Form("File2"))
+            Dim values1, values2, index1, index2, valuesplit, valuesplit2, indexsplit, indexsplit2
+            values1 = getValues(sheet, Request.Form("File1"))
+            index1 = getIndex(sheet, Request.Form("File1"))
+            values2 = getValues(sheet, Request.Form("File2"))
+            index2 = getIndex(sheet, Request.Form("File2"))
 
-            diffsplit = Split(diff1, "*")
+            valuesplit = Split(values1, "*")
             indexsplit = Split(index1, "*") 'row, column, row, column'
-            diffsplit2 = Split(diff2, "*")
+            valuesplit2 = Split(values2, "*")
             indexsplit2 = Split(index2, "*") 'row, column, row, column'
 
-            Dim I, value, X, Y, value2, finaldiff
-            I = 0
-            J = 0
-            Do While I < Ubound(diffsplit)
+            Dim I, J, X, Y, finaldiff, cellValue, cellValue2
+            I = 0 'value counter'
+            J = 0 'index counter'
+            Do While I < Ubound(valuesplit)
                 If indexsplit(J) = indexsplit2(J) Then
                     If indexsplit(J+1) = indexsplit2(J+1) Then
-                        value = diffsplit(I)
-                        value2 = diffsplit2(I)
-                        If StrComp(value, value2) <> 0 Then
-                            X = indexsplit(J)
-                            Y = indexsplit(J+1)
-                            finaldiff = finaldiff & "(" & X & "," & Y & "): " & value & " vs " & value2 & "|"
+                        cellValue = valuesplit(I)
+                        cellValue2 = valuesplit2(I)
+                        If StrComp(cellValue, cellValue2) <> 0 Then
+                            X = indexsplit(J) 'row num'
+                            Y = indexsplit(J+1) 'col num'
+                            finaldiff = finaldiff & "(" & X & "," & Y & "): " & cellValue & " vs " & cellValue2 & "|"
                         End If
                     End If
                 End If

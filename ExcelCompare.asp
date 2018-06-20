@@ -19,9 +19,31 @@ const adlockpessimistic = 2
 const adcmdtext = &H0001
 const adcmdtable = &H0002
 
+function IsBlank(Value)
+'returns True if Empty or NULL or Zero
+If IsEmpty(Value) or IsNull(Value) Then
+ IsBlank = True
+ElseIf VarType(Value) = vbString Then
+ If Value = "" Then
+  IsBlank = True
+ End If
+ElseIf IsObject(Value) Then
+ If Value Is Nothing Then
+  IsBlank = True
+ End If
+ElseIf IsNumeric(Value) Then
+ If Value = 0 Then
+  wscript.echo " Zero value found"
+  IsBlank = True
+ End If
+Else
+ IsBlank = False
+End If
+End Function
+
 'get values of all cells in a file as a string delimited by *'
 function getValues(sheetName, file)
-    Dim differences
+    Dim differences, value
     Dim CS1, RS1, SQ
     differences = ""
     CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
@@ -30,7 +52,12 @@ function getValues(sheetName, file)
     RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
     Do While Not RS1.EOF 
         For Each F in RS1.Fields 
-            differences = differences & RS1(F.Name) & "*" 
+            If isBlank(F) = True Then
+                value = 0
+            Else
+                value = RS1(F.Name)
+            End If
+            differences = differences & value & "*" 
             Next
         RS1.MoveNext
         Loop
@@ -100,6 +127,7 @@ If Request.Form <> "" Then
     Pr "<tr><td><b>" & Request.Form("File1") & " Sheets</b></td>"
     Pr "<td><b>" & Request.Form("File2") & " Sheets</b></td>"
     Pr "<td><b>Differences</b></td></tr>"
+
     For Each sheet in Split(File1Sheets,":")
         If Instr(File2Sheets, sheet) Then
             Dim values1, values2, index1, index2, valuesplit, valuesplit2, indexsplit, indexsplit2
@@ -113,23 +141,50 @@ If Request.Form <> "" Then
             valuesplit2 = Split(values2, "*")
             indexsplit2 = Split(index2, "*") 'row, column, row, column'
 
-            Dim I, J, X, Y, finaldiff, cellValue, cellValue2
-            I = 0 'value counter'
-            J = 0 'index counter'
+            Dim I, J, K, L, X, Y, finaldiff, cellValue, cellValue2
+            I = 0 'value1 counter'
+            J = 0 'index1 counter'
+            K = 0 'value2 counter'
+            L = 0 'index2 counter'
             Do While I < Ubound(valuesplit)
-                If indexsplit(J) = indexsplit2(J) Then
-                    If indexsplit(J+1) = indexsplit2(J+1) Then
+                X=""
+                Y=""
+                cellValue=""
+                cellValue2=""
+                If (L+1 > Ubound(indexsplit2)) Then
+                    cellValue = valuesplit(I)
+                    cellValue2 = 0
+                    If cellValue <> 0 Then
+                        X = indexsplit(J) 'row num'
+                        Y = indexsplit(J+1) 'col num'
+                        finaldiff = finaldiff & "(" & X & "," & Y & "): " & cellValue & " vs " & cellValue2 & "|"
+                        End If
+                    I = I + 1
+                    J = J + 2
+                Else
+
+                    If indexsplit(J) = indexsplit2(L) And indexsplit(J+1) = indexsplit2(L+1) Then
                         cellValue = valuesplit(I)
-                        cellValue2 = valuesplit2(I)
+                        cellValue2 = valuesplit2(K)
                         If StrComp(cellValue, cellValue2) <> 0 Then
                             X = indexsplit(J) 'row num'
                             Y = indexsplit(J+1) 'col num'
                             finaldiff = finaldiff & "(" & X & "," & Y & "): " & cellValue & " vs " & cellValue2 & "|"
-                        End If
+                            End If
+                        I = I + 1
+                        J = J + 2
+                        K = K + 1
+                        L = L + 2
+                    Else
+                        cellValue = valuesplit(I)
+                        cellValue2 = 0
+                        X = indexsplit(J) 'row num'
+                        Y = indexsplit(J+1) 'col num'
+                        finaldiff = finaldiff & "(" & X & "," & Y & "): " & cellValue & " vs " & cellValue2 & "|"
+                        I = I + 1
+                        J = J + 2
                     End If
                 End If
-                I = I + 1
-                J = J + 2
                 Loop
 
             Pr "<tr>"

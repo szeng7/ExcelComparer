@@ -31,27 +31,65 @@ function cellComparison(sheetName, file1, file2)
     Set RS2 = Server.CreateObject("ADODB.RecordSet")
     RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
     RS2.Open SQ, CS2, adopenforwardonly, adlockreadonly, adcmdtext
-    dim location, lineNum
+    dim lineNum, differences1, differences2
     lineNum=1
     Do While Not RS1.EOF 
-        Dim line1, line2, fieldNum
+        Dim fieldNum
         fieldNum=0 'column number'
         lineNum=lineNum+1
         For Each F in RS1.Fields 
             fieldNum=fieldNum+1
-            location = location & "(" & lineNum & "," & fieldNum & "):" & RS1(F.Name) & "|" 
+            differences1 = differences1 & RS1(F.Name) & "*" 
             Next
-        row1 = Split(location, "|")
-        For I = 0 to Ubound(row1)
-            differences = differences & row1(I) & "*"
-            Next
-        line1=""
-        line2=""
-        location=""
         RS1.MoveNext
         Loop
-    cellComparison = differences
+
+    'lineNum=1
+    'Do While Not RS2.EOF
+        'fieldNum=0
+        'lineNum=lineNum+1
+        'For Each F in RS2.Fields 
+            'fieldNum=fieldNum+1
+            'difference2 = differences2 & "(" & lineNum & "," & fieldNum & "): " & RS2(F.Name) & "*" 
+            'Next
+        'RS2.MoveNext
+        'Loop
+
+    'Dim cell1, cell2
+    'cell1 = Split(differences1, "*")
+    'cell2 = Split(differences2, "*")
+        
+    cellComparison = differences1
     End Function
+
+function getValues(sheetName, file1, file2)
+    Dim differences
+    Dim CS1, RS1, SQ, CS2, RS2
+    differences = ""
+    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file1) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
+    CS2 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file2) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
+    SQ = "SELECT * FROM [" & sheetName & "]"
+    Set RS1 = Server.CreateObject("ADODB.RecordSet")
+    Set RS2 = Server.CreateObject("ADODB.RecordSet")
+    RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
+    RS2.Open SQ, CS2, adopenforwardonly, adlockreadonly, adcmdtext
+    dim lineNum, differences1, differences2
+    lineNum=1
+    Do While Not RS1.EOF 
+        Dim fieldNum
+        fieldNum=0 'column number'
+        lineNum=lineNum+1
+        For Each F in RS1.Fields 
+            fieldNum=fieldNum+1
+            differences1 = differences1 & lineNum & "*" & fieldNum & "*" 
+            Next
+        RS1.MoveNext
+        Loop
+
+
+    getValues = differences1
+    End Function
+
 
 Sub Pr(S)
     Response.Write S
@@ -92,14 +130,16 @@ If Request.Form <> "" Then
     Pr "<td><b>Differences</b></td></tr>"
     For Each sheet in Split(File1Sheets,":")
         If Instr(File2Sheets, sheet) Then
-            Dim diff, parts
+            Dim diff, parts, index
             diff = cellComparison(sheet, Request.Form("File1"), Request.Form("File2"))
+            index = getValues(sheet, Request.Form("File1"), Request.Form("File2"))
             Pr "<tr>"
             Pr "<td>" & sheet & "</td>"
             Pr "<td>" & sheet & "</td>"
             If Len(diff) > 0 Then
                 Pr "<td><Form action='sheetCompare.asp' method='post'>"
                 Pr "<input type='hidden' name='diff' value='"&diff&"'>"
+                Pr "<input type='hidden' name='index' value='"&index&"'>"
                 Pr "<input type='hidden' name='sheet' value='"&sheet&"'>"
                 Pr "<input type='hidden' name='file1' value='"&Request.Form("file1")&"'>"
                 Pr "<input type='hidden' name='file2' value='"&Request.Form("file2")&"'>"

@@ -7,7 +7,7 @@ Sub Pr(S)
     End Sub
 
 Pr Request.Form("sheet") & " Comparison<br>"
-Pr "<center><table border='1' cellspacing='0'><tr><td>Differences</td></tr>"
+Pr "<center><table border='1' cellspacing='0'><tr><td>Differences ("&Request.Form("file1")&" vs "&Request.Form("file2")&") </td></tr>"
 diffsplit = Split(Request.Form("diff1"), "*")
 indexsplit = Split(Request.Form("index1"), "*") 'row, column, row, column'
 diffsplit2 = Split(Request.Form("diff2"), "*")
@@ -21,20 +21,14 @@ Do While I < Ubound(diffsplit)
             value = diffsplit(I)
             value2 = diffsplit2(I)
             If StrComp(value, value2) <> 0 Then
-                If I = 0 Then
-                    X = indexsplit(J)
-                    Y = indexsplit(J)
-                    J = J + 2
-                Else
-                    J = J + 2
-                    X = indexsplit(J)
-                    Y = indexsplit(J+1)
-                End If
+                X = indexsplit(J)
+                Y = indexsplit(J+1)
                 Pr "<tr> <td style='width:200px'>("&X&","&Y&"): "&value&" vs "&value2&"</td></tr>"
             End If
         End If
     End If
     I = I + 1
+    J = J + 2
     Loop
 Pr "</table></center>"
 %>

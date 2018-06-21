@@ -41,6 +41,7 @@ Else
 End If
 End Function
 
+'get number of columns/fields in file'
 function numFields(sheetName, file)
     Dim CS1, RS1, SQ
     CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
@@ -50,6 +51,7 @@ function numFields(sheetName, file)
     numFields = RS1.Fields.Count
     End Function
 
+'get number of rows in file'
 function numRows(sheetName, file)
     Dim CS1, RS1, SQ, rows
     rows = 0
@@ -144,8 +146,8 @@ If Request.Form <> "" Then
         If Instr(File2Sheets, sheet) Then
             Dim values1, values2, index1, index2, valuesplit, valuesplit2, indexsplit, indexsplit2
             Dim filename1, filename2, maxRows, maxFields, maxAttempt
-            maxRows = numRows(sheet,Request.Form("File1"))
-            maxAttempt = numRows(sheet, Request.Form("File2"))
+            maxRows = numRows(sheet,Request.Form("File1")) 'number of rows in file1'
+            maxAttempt = numRows(sheet, Request.Form("File2")) 'number of rows in file2'
             If maxAttempt > maxRows Then
                 maxRows = maxAttempt
                 End If
@@ -160,7 +162,7 @@ If Request.Form <> "" Then
             valuesplit2 = Split(values2, "*")
             filename1 = Request.Form("file1")
             filename2 = Request.Form("file2")
-            Dim I, J, K, L, X, Y, finaldiff, cellValue, cellValue2
+            Dim I, J, finaldiff, cellValue, cellValue2
             finaldiff = ""
             For I=0 to maxRows-1
                 For J=0 to maxFields - 1

@@ -170,7 +170,7 @@ If Request.Form <> "" Then
                     If StrComp(cellValue, "{Empty}") <> 0 Then 'if cell in first isn't empty'
                         X = indexsplit(J) 'row num'
                         Y = indexsplit(J+1) 'col num'
-                        finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "|"
+                        finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "\"
                         End If
                     I = I + 1
                     J = J + 2
@@ -182,7 +182,7 @@ If Request.Form <> "" Then
                         If StrComp(cellValue, cellValue2) <> 0 Then 'if the values are diff'
                             X = indexsplit(J) 'row num'
                             Y = indexsplit(J+1) 'col num'
-                            finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "|"
+                            finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "\"
                             End If
                         I = I + 1
                         J = J + 2
@@ -195,7 +195,7 @@ If Request.Form <> "" Then
                         If StrComp(cellValue, "{Empty}") <> 0 Then 'if cell in first isn't empty
                             X = indexsplit(J) 'row num'
                             Y = indexsplit(J+1) 'col num'
-                            finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "|"
+                            finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "\"
                         End If
                         I = I + 1
                         J = J + 2

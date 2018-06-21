@@ -5,7 +5,7 @@
 <Body>
 <br>
 <Form action='' method='post'>
-Excel File 1: 
+Excel File 1 (larger): 
 <input name='File1'>
 Excel File 2: 
 <input name='File2'>
@@ -52,8 +52,8 @@ function getValues(sheetName, file)
     RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
     Do While Not RS1.EOF 
         For Each F in RS1.Fields 
-            If isBlank(F) = True Then
-                value = 0
+            If IsBlank(F) = True Then
+                value = "{Empty}"
             Else
                 value = RS1(F.Name)
             End If
@@ -99,6 +99,7 @@ Dim File1Sheets, File2Sheets
 File1Sheets = ""
 File2Sheets = ""
 If Request.Form <> "" Then 
+
     Dim oConn1,sConn1,oConn2,sConn2
     Set oConn1 = Server.CreateObject("ADODB.Connection")
     Set oConn2 = Server.CreateObject("ADODB.Connection")
@@ -131,15 +132,27 @@ If Request.Form <> "" Then
     For Each sheet in Split(File1Sheets,":")
         If Instr(File2Sheets, sheet) Then
             Dim values1, values2, index1, index2, valuesplit, valuesplit2, indexsplit, indexsplit2
+            Dim filename1, filename2
             values1 = getValues(sheet, Request.Form("File1"))
             index1 = getIndex(sheet, Request.Form("File1"))
             values2 = getValues(sheet, Request.Form("File2"))
             index2 = getIndex(sheet, Request.Form("File2"))
 
-            valuesplit = Split(values1, "*")
-            indexsplit = Split(index1, "*") 'row, column, row, column'
-            valuesplit2 = Split(values2, "*")
-            indexsplit2 = Split(index2, "*") 'row, column, row, column'
+            If Len(index1) > Len(index2) Then
+                valuesplit = Split(values1, "*")
+                indexsplit = Split(index1, "*") 'row, column, row, column'
+                valuesplit2 = Split(values2, "*")
+                indexsplit2 = Split(index2, "*") 'row, column, row, column'
+                filename1 = Request.Form("file1")
+                filename2 = Request.Form("file2")
+            Else
+                valuesplit = Split(values2, "*")
+                indexsplit = Split(index2, "*") 'row, column, row, column'
+                valuesplit2 = Split(values1, "*")
+                indexsplit2 = Split(index1, "*") 'row, column, row, column'
+                filename2 = Request.Form("file1")
+                filename1 = Request.Form("file2")
+            End If
 
             Dim I, J, K, L, X, Y, finaldiff, cellValue, cellValue2
             I = 0 'value1 counter'
@@ -151,36 +164,39 @@ If Request.Form <> "" Then
                 Y=""
                 cellValue=""
                 cellValue2=""
-                If (L+1 > Ubound(indexsplit2)) Then
+                If (L+1 > Ubound(indexsplit2)) Then 'more info in first, empty in second'
                     cellValue = valuesplit(I)
-                    cellValue2 = 0
-                    If cellValue <> 0 Then
+                    cellValue2 = "{Empty}"
+                    If StrComp(cellValue, "{Empty}") <> 0 Then 'if cell in first isn't empty'
                         X = indexsplit(J) 'row num'
                         Y = indexsplit(J+1) 'col num'
-                        finaldiff = finaldiff & "(" & X & "," & Y & "): " & cellValue & " vs " & cellValue2 & "|"
+                        finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "|"
                         End If
                     I = I + 1
                     J = J + 2
                 Else
-
+                    'info in first and info in same corresponding spot in second'
                     If indexsplit(J) = indexsplit2(L) And indexsplit(J+1) = indexsplit2(L+1) Then
                         cellValue = valuesplit(I)
                         cellValue2 = valuesplit2(K)
-                        If StrComp(cellValue, cellValue2) <> 0 Then
+                        If StrComp(cellValue, cellValue2) <> 0 Then 'if the values are diff'
                             X = indexsplit(J) 'row num'
                             Y = indexsplit(J+1) 'col num'
-                            finaldiff = finaldiff & "(" & X & "," & Y & "): " & cellValue & " vs " & cellValue2 & "|"
+                            finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "|"
                             End If
                         I = I + 1
                         J = J + 2
                         K = K + 1
                         L = L + 2
                     Else
+                        'info in first, no info in second/blank spot'
                         cellValue = valuesplit(I)
-                        cellValue2 = 0
-                        X = indexsplit(J) 'row num'
-                        Y = indexsplit(J+1) 'col num'
-                        finaldiff = finaldiff & "(" & X & "," & Y & "): " & cellValue & " vs " & cellValue2 & "|"
+                        cellValue2 = "{Empty}"
+                        If StrComp(cellValue, "{Empty}") <> 0 Then 'if cell in first isn't empty
+                            X = indexsplit(J) 'row num'
+                            Y = indexsplit(J+1) 'col num'
+                            finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "|"
+                        End If
                         I = I + 1
                         J = J + 2
                     End If
@@ -194,8 +210,8 @@ If Request.Form <> "" Then
                 Pr "<td><Form action='sheetCompare.asp' method='post'>"
                 Pr "<input type='hidden' name='finaldiff' value='"&finaldiff&"'>"
                 Pr "<input type='hidden' name='sheet' value='"&sheet&"'>"
-                Pr "<input type='hidden' name='file1' value='"&Request.Form("file1")&"'>"
-                Pr "<input type='hidden' name='file2' value='"&Request.Form("file2")&"'>"
+                Pr "<input type='hidden' name='file1' value='"&filename1&"'>"
+                Pr "<input type='hidden' name='file2' value='"&filename2&"'>"
                 Pr "<input type='submit' value='View Differences'>"
                 Pr "</Form></td></tr>"
             Else

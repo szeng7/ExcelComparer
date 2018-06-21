@@ -41,17 +41,44 @@ Else
 End If
 End Function
 
-'get values of all cells in a file as a string delimited by *'
-function getValues(sheetName, file)
-    Dim differences, value
+function numFields(sheetName, file)
     Dim CS1, RS1, SQ
+    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
+    SQ = "SELECT * FROM [" & sheetName & "]"
+    Set RS1 = Server.CreateObject("ADODB.RecordSet")
+    RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
+    numFields = RS1.Fields.Count
+    End Function
+
+function numRows(sheetName, file)
+    Dim CS1, RS1, SQ, rows
+    rows = 0
+    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
+    SQ = "SELECT * FROM [" & sheetName & "]"
+    Set RS1 = Server.CreateObject("ADODB.RecordSet")
+    RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext 
+    Do While Not RS1.EOF
+        rows = rows + 1
+        RS1.MoveNext
+        Loop
+    numRows = rows
+    End Function
+
+'get values of all cells in a file as a string delimited by *'
+function getValues(sheetName, file, maxRows, maxFields)
+    Dim differences, value
+    Dim CS1, RS1, SQ, columns, rows
     differences = ""
     CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
     SQ = "SELECT * FROM [" & sheetName & "]"
     Set RS1 = Server.CreateObject("ADODB.RecordSet")
     RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
-    Do While Not RS1.EOF 
-        For Each F in RS1.Fields 
+    rows = 0
+    Do While Not RS1.EOF
+        rows = rows + 1
+        columns = 0
+        For Each F in RS1.Fields
+            columns = columns + 1
             If IsBlank(F) = True Then
                 value = "{Empty}"
             Else
@@ -59,35 +86,19 @@ function getValues(sheetName, file)
             End If
             differences = differences & value & "*" 
             Next
+        Do While columns < maxFields 
+            differences = differences & "{Empty}*"
+            columns = columns + 1
+            Loop
         RS1.MoveNext
         Loop
-        
+    Do While rows < maxRows
+        For I = 0 to maxFields
+            differences = differences & "{Empty}*"
+        Next
+        rows = rows + 1
+    Loop
     getValues = differences
-    End Function
-
-'get indexes of all cells in a file as a string delimited by *'
-function getIndex(sheetName, file)
-    Dim differences
-    Dim CS1, RS1, SQ
-    differences = ""
-    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
-    SQ = "SELECT * FROM [" & sheetName & "]"
-    Set RS1 = Server.CreateObject("ADODB.RecordSet")
-    RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
-    dim lineNum
-    lineNum=1
-    Do While Not RS1.EOF 
-        Dim fieldNum
-        fieldNum=0 'column number'
-        lineNum=lineNum+1
-        For Each F in RS1.Fields 
-            fieldNum=fieldNum+1
-            differences = differences & lineNum & "*" & fieldNum & "*" 
-            Next
-        RS1.MoveNext
-        Loop
-
-    getIndex = differences
     End Function
 
 Sub Pr(S)
@@ -132,76 +143,34 @@ If Request.Form <> "" Then
     For Each sheet in Split(File1Sheets,":")
         If Instr(File2Sheets, sheet) Then
             Dim values1, values2, index1, index2, valuesplit, valuesplit2, indexsplit, indexsplit2
-            Dim filename1, filename2
-            values1 = getValues(sheet, Request.Form("File1"))
-            index1 = getIndex(sheet, Request.Form("File1"))
-            values2 = getValues(sheet, Request.Form("File2"))
-            index2 = getIndex(sheet, Request.Form("File2"))
-
-            If Len(index1) > Len(index2) Then
-                valuesplit = Split(values1, "*")
-                indexsplit = Split(index1, "*") 'row, column, row, column'
-                valuesplit2 = Split(values2, "*")
-                indexsplit2 = Split(index2, "*") 'row, column, row, column'
-                filename1 = Request.Form("file1")
-                filename2 = Request.Form("file2")
-            Else
-                valuesplit = Split(values2, "*")
-                indexsplit = Split(index2, "*") 'row, column, row, column'
-                valuesplit2 = Split(values1, "*")
-                indexsplit2 = Split(index1, "*") 'row, column, row, column'
-                filename2 = Request.Form("file1")
-                filename1 = Request.Form("file2")
-            End If
-
-            Dim I, J, K, L, X, Y, finaldiff, cellValue, cellValue2
-            I = 0 'value1 counter'
-            J = 0 'index1 counter'
-            K = 0 'value2 counter'
-            L = 0 'index2 counter'
-            Do While I < Ubound(valuesplit)
-                X=""
-                Y=""
-                cellValue=""
-                cellValue2=""
-                If (L+1 > Ubound(indexsplit2)) Then 'more info in first, empty in second'
-                    cellValue = valuesplit(I)
-                    cellValue2 = "{Empty}"
-                    If StrComp(cellValue, "{Empty}") <> 0 Then 'if cell in first isn't empty'
-                        X = indexsplit(J) 'row num'
-                        Y = indexsplit(J+1) 'col num'
-                        finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "\"
-                        End If
-                    I = I + 1
-                    J = J + 2
-                Else
-                    'info in first and info in same corresponding spot in second'
-                    If indexsplit(J) = indexsplit2(L) And indexsplit(J+1) = indexsplit2(L+1) Then
-                        cellValue = valuesplit(I)
-                        cellValue2 = valuesplit2(K)
-                        If StrComp(cellValue, cellValue2) <> 0 Then 'if the values are diff'
-                            X = indexsplit(J) 'row num'
-                            Y = indexsplit(J+1) 'col num'
-                            finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "\"
-                            End If
-                        I = I + 1
-                        J = J + 2
-                        K = K + 1
-                        L = L + 2
-                    Else
-                        'info in first, no info in second/blank spot'
-                        cellValue = valuesplit(I)
-                        cellValue2 = "{Empty}"
-                        If StrComp(cellValue, "{Empty}") <> 0 Then 'if cell in first isn't empty
-                            X = indexsplit(J) 'row num'
-                            Y = indexsplit(J+1) 'col num'
-                            finaldiff = finaldiff & "(Row " & X & ", Column " & Y & "): " & cellValue & " vs " & cellValue2 & "\"
-                        End If
-                        I = I + 1
-                        J = J + 2
-                    End If
+            Dim filename1, filename2, maxRows, maxFields, maxAttempt
+            maxRows = numRows(sheet,Request.Form("File1"))
+            maxAttempt = numRows(sheet, Request.Form("File2"))
+            If maxAttempt > maxRows Then
+                maxRows = maxAttempt
                 End If
-                Loop
+            maxFields = numFields(sheet, Request.Form("File1"))
+            maxAttempt = numFields(sheet, Request.Form("File2"))
+            If maxAttempt > maxFields Then
+                maxFields = maxAttempt
+                End If
+            values1 = getValues(sheet, Request.Form("File1"), maxRows, maxFields)
+            values2 = getValues(sheet, Request.Form("File2"), maxRows, maxFields)
+            valuesplit = Split(values1, "*")
+            valuesplit2 = Split(values2, "*")
+            filename1 = Request.Form("file1")
+            filename2 = Request.Form("file2")
+            Dim I, J, K, L, X, Y, finaldiff, cellValue, cellValue2
+            finaldiff = ""
+            For I=0 to maxRows-1
+                For J=0 to maxFields - 1
+                    cellValue = valuesplit(maxFields*I + J)
+                    cellValue2 = valuesplit2(maxFields*I + J)
+                    If StrComp(cellValue, cellValue2) <> 0 Then
+                        finaldiff = finaldiff & "(Row " & I+2 & ", Column " & J+1 & "): " & cellValue & " vs " & cellValue2 & "\"
+                        End If
+                    Next
+                Next
 
             Pr "<tr>"
             Pr "<td>" & sheet & "</td>"

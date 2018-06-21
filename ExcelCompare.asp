@@ -5,7 +5,7 @@
 <Body>
 <br>
 <Form action='' method='post'>
-Excel File 1 (larger): 
+Excel File 1: 
 <input name='File1'>
 Excel File 2: 
 <input name='File2'>

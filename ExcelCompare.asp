@@ -142,7 +142,7 @@ If Request.Form <> "" Then
 
     For Each sheet in Split(File1Sheets,":")
         If Instr(File2Sheets, sheet) Then
-            Dim values1, values2, index1, index2, valuesplit, valuesplit2, indexsplit, indexsplit2
+            Dim values1, values2, valuesplit, valuesplit2
             Dim filename1, filename2, maxRows, maxFields, maxAttempt
             maxRows = numRows(sheet,Request.Form("File1"))
             maxAttempt = numRows(sheet, Request.Form("File2"))
@@ -160,7 +160,7 @@ If Request.Form <> "" Then
             valuesplit2 = Split(values2, "*")
             filename1 = Request.Form("file1")
             filename2 = Request.Form("file2")
-            Dim I, J, K, L, X, Y, finaldiff, cellValue, cellValue2
+            Dim I, J, finaldiff, cellValue, cellValue2
             finaldiff = ""
             For I=0 to maxRows-1
                 For J=0 to maxFields - 1

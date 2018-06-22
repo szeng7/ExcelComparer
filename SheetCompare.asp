@@ -13,7 +13,7 @@ Pr "<center><table border='1' cellspacing='0'><tr><td>Differences ("&Request.For
 differencesplit = Split(Request.Form("finaldiff"), "\")
 I = 0
 Do While I < Ubound(differencesplit)
-    Pr "<tr> <td style='width:200px'>"&differencesplit(I)&"</td></tr>"
+    Pr "<tr> <td style='width:400px'>"&differencesplit(I)&"</td></tr>"
     I = I + 1
     Loop
 Pr "</table></center>"

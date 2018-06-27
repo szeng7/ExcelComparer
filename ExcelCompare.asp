@@ -6,9 +6,9 @@
 <br>
 <Form action='' method='post'>
 Excel File 1: 
-<input name='File1'>
+<input type='file' name='File1'>
 Excel File 2: 
-<input name='File2'>
+<input type='file' name='File2'>
 <input type='submit' value='Compare'>
 </Form>
 <%
@@ -169,8 +169,8 @@ If Request.Form <> "" Then
                     cellValue = valuesplit(maxFields*I + J)
                     cellValue2 = valuesplit2(maxFields*I + J)
                     If StrComp(cellValue, cellValue2) <> 0 Then
-                        finaldiff = finaldiff & "(Row " & I+2 & ", Column " & J+1 & "): " & cellValue & " vs " & cellValue2 & "\"
-                        End If
+                        finaldiff = finaldiff & "(Row " & I+2 & ", Column " & J+1 & ")\ " & cellValue & " vs " & cellValue2 & "\"
+                    End If
                     Next
                 Next
 

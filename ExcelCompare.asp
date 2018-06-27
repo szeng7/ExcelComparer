@@ -144,7 +144,7 @@ If Request.Form <> "" Then
 
     For Each sheet in Split(File1Sheets,":")
         If Instr(File2Sheets, sheet) Then
-            Dim values1, values2, index1, index2, valuesplit, valuesplit2, indexsplit, indexsplit2
+            Dim values1, values2, valuesplit, valuesplit2
             Dim filename1, filename2, maxRows, maxFields, maxAttempt
             maxRows = numRows(sheet,Request.Form("File1")) 'number of rows in file1'
             maxAttempt = numRows(sheet, Request.Form("File2")) 'number of rows in file2'

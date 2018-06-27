@@ -41,6 +41,25 @@ Else
 End If
 End Function
 
+function getColumnHeaders(sheetName, file, maxFields)
+    Dim CS1, RS1, SQ, numFields
+    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
+    SQ = "SELECT * FROM [" & sheetName & "]"
+    Set RS1 = Server.CreateObject("ADODB.RecordSet")
+    RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
+    numFields = 0
+    For Each F in RS1.Fields
+        getColumnHeaders = getColumnHeaders & F.Name & "\"
+        numFields = numFields + 1
+    Next
+
+    Do While StrComp(numFields, maxFields) <> 0
+        getColumnHeaders = getColumnHeaders & "{No Field Name}\" 
+        numFields = numFields + 1
+    Loop
+
+    End Function
+
 'get number of columns/fields in file'
 function numFields(sheetName, file)
     Dim CS1, RS1, SQ
@@ -142,9 +161,10 @@ If Request.Form <> "" Then
     Pr "<td><b>" & Request.Form("File2") & " Sheets</b></td>"
     Pr "<td><b>Differences</b></td></tr>"
 
+    Dim colName
     For Each sheet in Split(File1Sheets,":")
         If Instr(File2Sheets, sheet) Then
-            Dim values1, values2, valuesplit, valuesplit2
+            Dim values1, values2, valuesplit, valuesplit2, min
             Dim filename1, filename2, maxRows, maxFields, maxAttempt
             maxRows = numRows(sheet,Request.Form("File1")) 'number of rows in file1'
             maxAttempt = numRows(sheet, Request.Form("File2")) 'number of rows in file2'
@@ -154,8 +174,14 @@ If Request.Form <> "" Then
             maxFields = numFields(sheet, Request.Form("File1"))
             maxAttempt = numFields(sheet, Request.Form("File2"))
             If maxAttempt > maxFields Then
+                min = maxFields
                 maxFields = maxAttempt
-                End If
+                colName = getColumnHeaders(sheet,Request.Form("File1"), maxFields)
+            Else
+                min = maxAttempt
+                colName = getColumnHeaders(sheet,Request.Form("File2"), maxFields)
+            End If
+            colNameSplit = Split(colName, "\")
             values1 = getValues(sheet, Request.Form("File1"), maxRows, maxFields)
             values2 = getValues(sheet, Request.Form("File2"), maxRows, maxFields)
             valuesplit = Split(values1, "*")
@@ -169,7 +195,7 @@ If Request.Form <> "" Then
                     cellValue = valuesplit(maxFields*I + J)
                     cellValue2 = valuesplit2(maxFields*I + J)
                     If StrComp(cellValue, cellValue2) <> 0 Then
-                        finaldiff = finaldiff & "(Row " & I+2 & ", Column " & J+1 & ")\ " & cellValue & " vs " & cellValue2 & "\"
+                        finaldiff = finaldiff & " " & colNameSplit(J) & " - Row " & I+2 & "\" & cellValue & "\" & cellValue2 & "\"
                     End If
                     Next
                 Next

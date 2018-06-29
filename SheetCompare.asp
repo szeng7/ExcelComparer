@@ -6,19 +6,22 @@ Sub Pr(S)
     End Sub
 Dim I, differencesplit, lastRow
 Pr Request.Form("sheet") & " Comparison<br>"
-Pr "<center><table border='1' cellspacing='0'><tr><td><b>Location</b></td>"&"<td><b>"&Request.Form("file1")&" Contents</b></td><td><b>"&Request.Form("file2")&" Contents</b></td></tr>"
+Pr "<center><table border='1' cellspacing='0'><tr><td><b>Column</b></td>"&"<td><b>Row</b></td>"&"<td><b>"&Request.Form("file1")&" Contents</b></td><td><b>"&Request.Form("file2")&" Contents</b></td>"&"<td><b>Column</b></td>"&"<td><b>Row</b></td></tr>"
 differencesplit = Split(Request.Form("finaldiff"), "\")
 I = 0
 Do While I < Ubound(differencesplit)
-    If I/3 = Int(I/3) Then
-        Pr "<tr>"
-        lastRow = I
-        End If
-    Pr "<td style='width:400px'>"&differencesplit(I)&"</td>"
-    If I = lastRow + 2 Then
-        Pr "</tr>"
-        End If
+    Pr "<tr><td style='width:50px'>" &differencesplit(I)& "</td>"
     I = I + 1
-    Loop
+    Pr "<td style='width:50px'>"&differencesplit(I)&" </td>"
+    I = I + 1
+    Pr "<td style='width:250px'>"&differencesplit(I)&" </td>"
+    I = I + 1
+    Pr "<td style='width:250px'>"&differencesplit(I)&" </td>"
+    I = I + 1
+    Pr "<td style='width:50px'>"&differencesplit(I)&" </td>"
+    I = I + 1
+    Pr "<td style='width:50px'>"&differencesplit(I)&" </td> </tr>"
+    I = I + 1
+Loop
 Pr "</table></center>"
 %>

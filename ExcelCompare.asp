@@ -208,7 +208,7 @@ If Request.QueryString.Count <> 0 Then
                     cellValue = valuesplit(maxFields*I + J)
                     cellValue2 = valuesplit2(maxFields*I + J)
                     If StrComp(cellValue, cellValue2) <> 0 Then
-                        finaldiff = finaldiff & " Column " & excelCols(J+1) & " - Row " & I+2 & "\" & cellValue & "\" & cellValue2 & "\"
+                        finaldiff = finaldiff & excelCols(J+1) & "\" & I+2 & "\" & cellValue & "\" & cellValue2 & "\" & excelCols(J+1) & "\" & I+2 & "\"
                     End If
                     Next
                 Next

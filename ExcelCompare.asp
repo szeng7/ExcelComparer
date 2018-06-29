@@ -157,14 +157,26 @@ If Request.QueryString.Count <> 0 Then
     Set oRS2 = oConn2.OpenSchema(20)
     Do While Not oRS1.EOF
         sSheetName = oRS1.Fields("table_name").Value
-        File1Sheets = File1Sheets & sSheetName & ":"
+        If Request.QueryString("Mode") = "data" Then
+            If InStr(sSheetName,"$") Then
+                File1Sheets = File1Sheets & sSheetName & ":"
+            End If
+        Else
+            File1Sheets = File1Sheets & sSheetName & ":"
+        End If
         oRS1.MoveNext()
     Loop
     File1Sheets = StrReverse(File1Sheets)
     File1Sheets = StrReverse(Replace(File1Sheets,":","",1,1))
     Do While Not oRS2.EOF
         sSheetName = oRS2.Fields("table_name").Value
-        File2Sheets = File2Sheets & sSheetName & ":"
+        If Request.QueryString("Mode") = "data" Then
+            If InStr(sSheetName,"$") Then
+                File2Sheets = File2Sheets & sSheetName & ":"
+            End If
+        Else
+            File2Sheets = File2Sheets & sSheetName & ":"
+        End If
         oRS2.MoveNext()
     Loop
     File2Sheets = StrReverse(File2Sheets)

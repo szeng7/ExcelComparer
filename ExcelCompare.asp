@@ -3,14 +3,16 @@
 </head>
 <b>Excel File Comparison</b>
 <Body>
-<br>
+
+
 <Form action='' method='get'>
 Excel File 1: 
 <input type='file' name='File1'>
 Excel File 2: 
 <input type='file' name='File2'>
 <input type='submit' value='Compare'>
-</Form>
+</Form> 
+
 <%
 const adopenforwardonly = 0
 const adopenstatic = 3
@@ -181,9 +183,10 @@ If Request.QueryString.Count <> 0 Then
     Loop
     File2Sheets = StrReverse(File2Sheets)
     File2Sheets = StrReverse(Replace(File2Sheets,":","",1,1))
-    weboutput = "<center><table border='1' cellspacing='0'>"
+    weboutput = "<center><table border='1' cellspacing='1'>"
     weboutput = weboutput & "<tr><td><b>" & Request.QueryString("File1") & " Sheets</b></td>"
     weboutput = weboutput & "<td><b>" & Request.QueryString("File2") & " Sheets</b></td>"
+    weboutput = weboutput & "<td><b></b></td>"
     weboutput = weboutput & "<td></td></tr>"
     sheetDifferences = 0
     Dim colName
@@ -226,8 +229,8 @@ If Request.QueryString.Count <> 0 Then
                 Next
 
             weboutput = weboutput & "<tr>"
-            weboutput = weboutput & "<td>" & sheet & "</td>"
-            weboutput = weboutput & "<td>" & sheet & "</td>"
+            weboutput = weboutput & "<td style='background-color: #CCFFFF'>" & sheet & "</td>"
+            weboutput = weboutput & "<td style='background-color: #FFFFCC'>" & sheet & "</td>"
             If Len(finaldiff) > 0 Then
                 weboutput = weboutput & "<td><Form action='sheetCompare.asp' method='post'>"
                 weboutput = weboutput & "<input type='hidden' name='finaldiff' value='"&finaldiff&"'>"

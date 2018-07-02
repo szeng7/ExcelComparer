@@ -220,7 +220,8 @@ If Request.QueryString.Count <> 0 Then
                     cellValue = valuesplit(maxFields*I + J)
                     cellValue2 = valuesplit2(maxFields*I + J)
                     If StrComp(cellValue, cellValue2) <> 0 Then
-                        finaldiff = finaldiff & excelCols(J+1) & "\" & I+2 & "\" & cellValue & "\" & cellValue2 & "\" & excelCols(J+1) & "\" & I+2 & "\"
+                        finaldiff1 = finaldiff1 & excelCols(J+1) & "\|\" & I+2 & "\|\" & cellValue & "\|\"
+                        finaldiff2 = finaldiff2 & excelCols(J+1) & "\|\" & I+2 & "\|\" & cellValue2 & "\|\"
                     End If
                     Next
                 Next
@@ -228,9 +229,10 @@ If Request.QueryString.Count <> 0 Then
             weboutput = weboutput & "<tr>"
             weboutput = weboutput & "<td>" & sheet & "</td>"
             weboutput = weboutput & "<td>" & sheet & "</td>"
-            If Len(finaldiff) > 0 Then
+            If Len(finaldiff1) > 0 Then
                 weboutput = weboutput & "<td><Form action='sheetCompare.asp' method='post'>"
-                weboutput = weboutput & "<input type='hidden' name='finaldiff' value='"&finaldiff&"'>"
+                weboutput = weboutput & "<input type='hidden' name='finaldiff1' value='"&finaldiff1&"'>"
+                weboutput = weboutput & "<input type='hidden' name='finaldiff2' value='"&finaldiff2&"'>"
                 weboutput = weboutput & "<input type='hidden' name='sheet' value='"&sheet&"'>"
                 weboutput = weboutput & "<input type='hidden' name='file1' value='"&filename1&"'>"
                 weboutput = weboutput & "<input type='hidden' name='file2' value='"&filename2&"'>"
@@ -240,7 +242,7 @@ If Request.QueryString.Count <> 0 Then
             Else
                 weboutput = weboutput & "<td>(No Differences)</td></tr>"
                 End If
-            finaldiff=""
+            finaldiff1=""
         Else 
             weboutput = weboutput & "<tr>"
             weboutput = weboutput & "<td>" & sheet & "</td>"

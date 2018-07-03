@@ -86,7 +86,7 @@ function numFields(sheetName, file)
 'get number of rows in file'
 function numRows(sheetName, file)
     Dim CS1, RS1, SQ, rows
-    rows = 0
+    rows = 1
     CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
     SQ = "SELECT * FROM [" & sheetName & "]"
     Set RS1 = Server.CreateObject("ADODB.RecordSet")
@@ -107,7 +107,7 @@ function getValues(sheetName, file, maxRows, maxFields)
     SQ = "SELECT * FROM [" & sheetName & "]"
     Set RS1 = Server.CreateObject("ADODB.RecordSet")
     RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
-    rows = 0
+    rows = 1
     Do While Not RS1.EOF
         rows = rows + 1
         columns = 0
@@ -217,7 +217,7 @@ If Request.QueryString.Count <> 0 Then
             filename2 = Request.QueryString("file2")
             Dim I, J, finaldiff, cellValue, cellValue2, column, colRes
             finaldiff = ""
-            For I=0 to maxRows-1
+            For I=0 to maxRows-2
                 For J=0 to maxFields - 1
                     cellValue = valuesplit(maxFields*I + J)
                     cellValue2 = valuesplit2(maxFields*I + J)

@@ -3,16 +3,14 @@
 </head>
 <b>Excel File Comparison</b>
 <Body>
-
-
+<br>
 <Form action='' method='get'>
 Excel File 1: 
 <input type='file' name='File1'>
 Excel File 2: 
 <input type='file' name='File2'>
 <input type='submit' value='Compare'>
-</Form> 
-
+</Form>
 <%
 const adopenforwardonly = 0
 const adopenstatic = 3
@@ -88,7 +86,7 @@ function numFields(sheetName, file)
 'get number of rows in file'
 function numRows(sheetName, file)
     Dim CS1, RS1, SQ, rows
-    rows = 0
+    rows = 1
     CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
     SQ = "SELECT * FROM [" & sheetName & "]"
     Set RS1 = Server.CreateObject("ADODB.RecordSet")
@@ -109,7 +107,7 @@ function getValues(sheetName, file, maxRows, maxFields)
     SQ = "SELECT * FROM [" & sheetName & "]"
     Set RS1 = Server.CreateObject("ADODB.RecordSet")
     RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
-    rows = 0
+    rows = 1
     Do While Not RS1.EOF
         rows = rows + 1
         columns = 0
@@ -120,18 +118,20 @@ function getValues(sheetName, file, maxRows, maxFields)
             Else
                 value = RS1(F.Name)
             End If
-            differences = differences & value & "*" 
+            differences = differences & value & "***"
             Next
         Do While columns < maxFields 
-            differences = differences & "{Empty}*"
+            differences = differences & "{Empty}***"
             columns = columns + 1
             Loop
+        differences = differences & "\\\"
         RS1.MoveNext
         Loop
     Do While rows < maxRows
-        For I = 0 to maxFields
-            differences = differences & "{Empty}*"
+        For I = 0 to maxFields-1
+            differences = differences & "{Empty}***"
         Next
+        differences = differences & "\\\"
         rows = rows + 1
     Loop
     getValues = differences
@@ -183,10 +183,9 @@ If Request.QueryString.Count <> 0 Then
     Loop
     File2Sheets = StrReverse(File2Sheets)
     File2Sheets = StrReverse(Replace(File2Sheets,":","",1,1))
-    weboutput = "<center><table border='1' cellspacing='1'>"
+    weboutput = "<center><table border='1' cellspacing='0'>"
     weboutput = weboutput & "<tr><td><b>" & Request.QueryString("File1") & " Sheets</b></td>"
     weboutput = weboutput & "<td><b>" & Request.QueryString("File2") & " Sheets</b></td>"
-    weboutput = weboutput & "<td><b></b></td>"
     weboutput = weboutput & "<td></td></tr>"
     sheetDifferences = 0
     Dim colName
@@ -212,18 +211,19 @@ If Request.QueryString.Count <> 0 Then
             colNameSplit = Split(colName, "\")
             values1 = getValues(sheet, Request.QueryString("File1"), maxRows, maxFields)
             values2 = getValues(sheet, Request.QueryString("File2"), maxRows, maxFields)
-            valuesplit = Split(values1, "*")
-            valuesplit2 = Split(values2, "*")
+            valuesplit = Split(Replace(values1,"\\\",""),"***")
+            valuesplit2 = Split(Replace(values2,"\\\",""),"***")
             filename1 = Request.QueryString("file1")
             filename2 = Request.QueryString("file2")
             Dim I, J, finaldiff, cellValue, cellValue2, column, colRes
             finaldiff = ""
-            For I=0 to maxRows-1
+            For I=0 to maxRows-2
                 For J=0 to maxFields - 1
                     cellValue = valuesplit(maxFields*I + J)
                     cellValue2 = valuesplit2(maxFields*I + J)
                     If StrComp(cellValue, cellValue2) <> 0 Then
-                        finaldiff = finaldiff & excelCols(J+1) & "\|\" & I+2 & "\|\" & cellValue & "\|\" & cellValue2 & "\|\" & excelCols(J+1) & "\|\" & I+2 & "\|\"
+                        finaldiff1 = finaldiff1 & excelCols(J+1) & "\|\" & I+2 & "\|\" & cellValue & "\|\"
+                        finaldiff2 = finaldiff2 & excelCols(J+1) & "\|\" & I+2 & "\|\" & cellValue2 & "\|\"
                     End If
                     Next
                 Next
@@ -231,9 +231,11 @@ If Request.QueryString.Count <> 0 Then
             weboutput = weboutput & "<tr>"
             weboutput = weboutput & "<td style='background-color: #CCFFFF'>" & sheet & "</td>"
             weboutput = weboutput & "<td style='background-color: #FFFFCC'>" & sheet & "</td>"
-            If Len(finaldiff) > 0 Then
-                weboutput = weboutput & "<td><Form action='sheetCompare.asp' method='post'>"
-                weboutput = weboutput & "<input type='hidden' name='finaldiff' value='"&finaldiff&"'>"
+            If Len(finaldiff1) > 0 Then
+                weboutput = weboutput & "<td><Form action='SheetCompare.asp' method='post'>"
+                weboutput = weboutput & "<input type='hidden' name='full1' value='"&values1&"'>"
+                weboutput = weboutput & "<input type='hidden' name='full2' value='"&values2&"'>"
+                weboutput = weboutput & "<input type='hidden' name='fields' value='"&maxFields&"'>"
                 weboutput = weboutput & "<input type='hidden' name='sheet' value='"&sheet&"'>"
                 weboutput = weboutput & "<input type='hidden' name='file1' value='"&filename1&"'>"
                 weboutput = weboutput & "<input type='hidden' name='file2' value='"&filename2&"'>"
@@ -243,7 +245,7 @@ If Request.QueryString.Count <> 0 Then
             Else
                 weboutput = weboutput & "<td>(No Differences)</td></tr>"
                 End If
-            finaldiff=""
+            finaldiff1=""
         Else 
             weboutput = weboutput & "<tr>"
             weboutput = weboutput & "<td>" & sheet & "</td>"

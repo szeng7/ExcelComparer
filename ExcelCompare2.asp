@@ -229,8 +229,8 @@ If Request.QueryString.Count <> 0 Then
                 Next
 
             weboutput = weboutput & "<tr>"
-            weboutput = weboutput & "<td>" & sheet & "</td>"
-            weboutput = weboutput & "<td>" & sheet & "</td>"
+            weboutput = weboutput & "<td style='background-color: #CCFFFF'>" & sheet & "</td>"
+            weboutput = weboutput & "<td style='background-color: #FFFFCC'>" & sheet & "</td>"
             If Len(finaldiff1) > 0 Then
                 weboutput = weboutput & "<td><Form action='notworking2.asp' method='post'>"
                 weboutput = weboutput & "<input type='hidden' name='full1' value='"&values1&"'>"

@@ -1,5 +1,27 @@
 <html>
 <Body>
+
+
+<style>
+
+table {
+  overflow: hidden;
+}
+
+body,td {
+    font-family: tahoma,verdana,arial,helvetica;
+}
+td { 
+    color: black; 
+    text-decoration: none; 
+    background-color: #eeeeee;
+}
+
+tr:hover {
+  text-shadow: 0.5px 0.5px grey;
+}
+</style>
+
 <%
 const numRowsToCheck = 4
 Sub Pr(S)
@@ -21,7 +43,7 @@ End Function
 Dim I, numFields, file1rows, file2rows
 'Number of rows to look ahead to decide if an insertion
 Pr Request.Form("sheet") & " Comparison<br>"
-Pr "<center><table border='1' cellspacing='0'><tr><td><b>Column</b></td>"&"<td><b>Row</b></td>"&"<td><b>"&Request.Form("file1")&" Contents</b></td><td><b>"&Request.Form("file2")&" Contents</b></td>"&"<td><b>Column</b></td>"&"<td><b>Row</b></td></tr>"
+Pr "<center><table border='1' cellspacing='1' style='background-color: black' ><tr><td style='background-color: #FFFFCC' ><b>Column</b></td>"&"<td style='background-color: #CCFFFF'><b>Row</b></td>"&"<td style='background-color: #74A4BC'><b>"&Request.Form("file1")&" Contents</b></td><td style='background-color: #74A4BC'><b>"&Request.Form("file2")&" Contents</b></td>"&"<td style='background-color: #FFFFCC'><b>Column</b></td>"&"<td style='background-color: #CCFFFF'><b>Row</b></td></tr>"
 file1rows = Split(Request.Form("full1"), "\\\")
 file2rows = Split(Request.Form("full2"), "\\\")
 numFields = Request.Form("fields")
@@ -55,13 +77,13 @@ Do While I + offset1 < Ubound(file1rows) And I + offset2 < Ubound(file2rows)
     'Evidence of an insertion if insertion = 1
     End If
     If insertion1 = 1 Then
-        Pr "<tr><td></td><td>"&rowNum1&"</td><td>"&file1rows(I+offset1)&"</td>"
-        Pr "<td>"&file2rows(I+offset2)&"</td><td></td><td>"&rowNum2&"</td></tr>"
+        Pr "<tr><td style='width:50px; background-color: #FFFFCC' ></td><td  style='width:50px; background-color: #CCFFFF'>"&rowNum1&"</td><td style='width:250px;'>"&file1rows(I+offset1)&"</td>"
+        Pr "<td style='width:250px;'>"&file2rows(I+offset2)&"</td><td style='width:50px; background-color: #FFFFCC'></td><td style='width:50px; background-color: #CCFFFF'>"&rowNum2&"</td></tr>"
         offset1 = offset1 + 1
         rowNum1 = rowNum1 + 1
     ElseIf insertion2 = 1 Then
-        Pr "<tr><td></td><td>"&rowNum1&"</td><td>"&file1rows(I+offset1)&"</td>"
-        Pr "<td>"&file2rows(I+offset2)&"</td><td></td><td>"&rowNum2&"</td></tr>"
+        Pr "<tr><td  style='width:50px; background-color: #FFFFCC' ></td><td style='width:50px; background-color: #CCFFFF'>"&rowNum1&"</td><td style='width:250px;'>"&file1rows(I+offset1)&"</td>"
+        Pr "<td style='width:250px;'>"&file2rows(I+offset2)&"</td><td style='width:50px; background-color: #FFFFCC'></td><td style='width:50px; background-color: #CCFFFF'>"&rowNum2&"</td></tr>"
         offset2 = offset2 + 1
         rowNum2 = rowNum2 + 1
     Else
@@ -69,9 +91,9 @@ Do While I + offset1 < Ubound(file1rows) And I + offset2 < Ubound(file2rows)
         cells2 = Split(file2rows(I+offset2),"***")
         For J = 0 to Ubound(cells1)
             If StrComp(cells1(J), cells2(J)) <> 0 Then
-                Pr "<tr><td>"&excelCols(J+1)&"</td><td>"&rowNum1&"</td>"
-                Pr "<td>"&cells1(J)&"</td><td>"&cells2(J)&"</td>" 
-                Pr "<td>"&excelCols(J+1)&"</td><td>"&rowNum2&"</td></tr>"
+                Pr "<tr><td style='width:50px; background-color: #FFFFCC' >"&excelCols(J+1)&"</td><td style='width:50px; background-color: #CCFFFF'>"&rowNum1&"</td>"
+                Pr "<td style='width:250px;'>"&cells1(J)&"</td><td style='width:250px;'>"&cells2(J)&"</td>" 
+                Pr "<td style='width:50px; background-color: #FFFFCC'>"&excelCols(J+1)&"</td><td style='width:50px; background-color: #CCFFFF'>"&rowNum2&"</td></tr>"
             End If
         Next
     End If

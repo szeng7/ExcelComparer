@@ -1,6 +1,4 @@
-
-<!DOCTYPE html>
-
+<html>
 <Body>
 
 
@@ -13,7 +11,6 @@ table {
 body,td {
     font-family: tahoma,verdana,arial,helvetica;
 }
-
 td { 
     color: black; 
     text-decoration: none; 
@@ -86,7 +83,7 @@ Do While I + offset1 < Ubound(file1rows) And I + offset2 < Ubound(file2rows)
         cells2 = Split(file2rows(I+offset2),"***")
         For A = 1 to Ubound(cells1)
             If (A = 1) Then
-                Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum1&"</td><td style='background-color: #909090'><i>Inserted Row</i></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td></tr>"
+                Pr "<tr><td style='width:50px; background-color: #909090'></td><td style='width:50px; background-color: #909090'>"&rowNum1&"</td><td style='width:250px; background-color: #909090'><i>Inserted Row</i></td><td style='width:250px; background-color: #909090'></td><td style='width:50px; background-color: #909090'></td><td style='width:50px; background-color: #909090'></td></tr>"
         End If
         Next
         offset1 = offset1 + 1
@@ -96,7 +93,7 @@ Do While I + offset1 < Ubound(file1rows) And I + offset2 < Ubound(file2rows)
         cells2 = Split(file2rows(I+offset2),"***")
         For A = 1 to Ubound(cells1)
             If (A = 1) Then
-                Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'><i>Inserted Row</i></td><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum2&"</td></tr>"
+                Pr "<tr><td style='width:50px; background-color: #909090'></td><td style='width:50px; background-color: #909090'></td><td style='width:250px; background-color: #909090'></td><td style='width:250px; background-color: #909090'><i>Inserted Row</i></td><td style='width:50px; background-color: #909090'></td><td style='width:50px; background-color: #909090'>"&rowNum2&"</td></tr>"
         End If
         Next
         offset2 = offset2 + 1
@@ -106,9 +103,9 @@ Do While I + offset1 < Ubound(file1rows) And I + offset2 < Ubound(file2rows)
         cells2 = Split(file2rows(I+offset2),"***")
         For J = 0 to Ubound(cells1)
             If StrComp(cells1(J), cells2(J)) <> 0 Then
-                Pr "<tr><td style='background-color: #FFFFCC' >"&excelCols(J+1)&"</td><td style='background-color: #CCFFFF'>"&rowNum1&"</td>"
-                Pr "<td>"&cells1(J)&"</td><td>"&cells2(J)&"</td>" 
-                Pr "<td style='background-color: #FFFFCC'>"&excelCols(J+1)&"</td><td style='background-color: #CCFFFF'>"&rowNum2&"</td></tr>"
+                Pr "<tr><td style='width:50px; background-color: #FFFFCC' >"&excelCols(J+1)&"</td><td style='width:50px; background-color: #CCFFFF'>"&rowNum1&"</td>"
+                Pr "<td style='width:250px;'>"&cells1(J)&"</td><td style='width:250px;'>"&cells2(J)&"</td>" 
+                Pr "<td style='width:50px; background-color: #FFFFCC'>"&excelCols(J+1)&"</td><td style='width:50px; background-color: #CCFFFF'>"&rowNum2&"</td></tr>"
             End If
         Next
     End If

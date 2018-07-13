@@ -66,7 +66,7 @@ Do While I + offset1 < Ubound(file1rows) And I + offset2 < Ubound(file2rows)
         For J = 1 to numRowsToCheck
             If I+offset1+J < Ubound(file1rows) Then 
                 If StrComp(file1rows(I+offset1+J),file2Rows(I+offset2)) = 0 Then
-                    insertion1 = 1
+                    insertion1 = J
                 End If
             End If
         Next
@@ -74,33 +74,37 @@ Do While I + offset1 < Ubound(file1rows) And I + offset2 < Ubound(file2rows)
             For J = 1 to numRowsToCheck
                 If I+offset2+J<Ubound(file2rows) Then
                     If StrComp(file1rows(I+offset1),file2Rows(I+offset2+J)) = 0 Then
-                        insertion2 = 1
+                        insertion2 = J
                     End If
                 End If
             Next
         End If
     'Evidence of an insertion if insertion = 1
     End If
-    If insertion1 = 1 Then
+    If insertion1 > 0 Then
         cells1 = Split(file1rows(I+offset1),"***")
         cells2 = Split(file2rows(I+offset2),"***")
-        For A = 1 to Ubound(cells1)
-            If (A = 1) Then
-                Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum1&"</td><td style='background-color: #909090'><i>Inserted Row</i></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td></tr>"
-        End If
+        For J = 0 to insertion1 - 1
+            For A = 1 to Ubound(cells1)
+                If (A = 1) Then
+                    Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum1+J&"</td><td style='background-color: #909090'><i>Inserted Row</i></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td></tr>"
+            End If
+            Next
         Next
-        offset1 = offset1 + 1
-        rowNum1 = rowNum1 + 1
-    ElseIf insertion2 = 1 Then
+        offset1 = offset1 + insertion1
+        rowNum1 = rowNum1 + insertion1
+    ElseIf insertion2 > 0 Then
         cells1 = Split(file1rows(I+offset1),"***")
         cells2 = Split(file2rows(I+offset2),"***")
-        For A = 1 to Ubound(cells1)
-            If (A = 1) Then
-                Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'><i>Inserted Row</i></td><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum2&"</td></tr>"
-        End If
+        For J = 0 to insertion2 - 1
+            For A = 1 to Ubound(cells1)
+                If (A = 1) Then
+                    Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'><i>Inserted Row</i></td><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum2+J&"</td></tr>"
+            End If
+            Next
         Next
-        offset2 = offset2 + 1
-        rowNum2 = rowNum2 + 1
+        offset2 = offset2 + insertion2
+        rowNum2 = rowNum2 + insertion2
     Else
         cells1 = Split(file1rows(I+offset1),"***")
         cells2 = Split(file2rows(I+offset2),"***")

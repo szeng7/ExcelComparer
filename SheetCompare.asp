@@ -86,7 +86,7 @@ Do While I + offset1 < Ubound(file1rows) And I + offset2 < Ubound(file2rows)
         cells2 = Split(file2rows(I+offset2),"***")
         For J = 0 to insertion1 - 1
             For A = 1 to Ubound(cells1)
-                If (A = 1) And rowNum1+J <= Ubound(file1rows) Then
+                If (A = 1) Then
                     Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum1+J&"</td><td style='background-color: #909090'><i>Inserted Row</i></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td></tr>"
             End If
             Next
@@ -98,7 +98,7 @@ Do While I + offset1 < Ubound(file1rows) And I + offset2 < Ubound(file2rows)
         cells2 = Split(file2rows(I+offset2),"***")
         For J = 0 to insertion2 - 1
             For A = 1 to Ubound(cells1)
-                If (A = 1) And rowNum2+J <= Ubound(file2rows) Then
+                If (A = 1) Then
                     Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'><i>Inserted Row</i></td><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum2+J&"</td></tr>"
             End If
             Next

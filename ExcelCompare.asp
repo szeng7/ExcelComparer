@@ -54,25 +54,6 @@ Else
 End If
 End Function
 
-function getColumnHeaders(sheetName, file, maxFields)
-    Dim CS1, RS1, SQ, numFields
-    CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;HDR=NO;IMEX=1"""
-    SQ = "SELECT * FROM [" & sheetName & "]"
-    Set RS1 = Server.CreateObject("ADODB.RecordSet")
-    RS1.Open SQ, CS1, adopenforwardonly, adlockreadonly, adcmdtext
-    numFields = 0
-    For Each F in RS1.Fields
-        getColumnHeaders = getColumnHeaders & F.Name & "\"
-        numFields = numFields + 1
-    Next
-
-    Do While StrComp(numFields, maxFields) <> 0
-        getColumnHeaders = getColumnHeaders & "{No Field Name}\" 
-        numFields = numFields + 1
-    Loop
-
-    End Function
-
 'get number of columns/fields in file'
 function numFields(sheetName, file)
     Dim CS1, RS1, SQ
@@ -100,7 +81,9 @@ function numRows(sheetName, file)
 
 'get values of all cells in a file as a string delimited by *'
 function getValues(sheetName, file, maxRows, maxFields)
-    Dim differences, value
+    Dim values()
+    Redim values(maxRows, maxFields)
+    Dim value
     Dim CS1, RS1, SQ, columns, rows
     differences = ""
     CS1 = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Server.MapPath(file) & ";Persist Security Info=False;Extended Properties=""Excel 8.0;IMEX=1"""
@@ -118,23 +101,22 @@ function getValues(sheetName, file, maxRows, maxFields)
             Else
                 value = RS1(F.Name)
             End If
-            differences = differences & value & "***"
+            values(rows - 2, columns - 1) = value
             Next
-        Do While columns < maxFields 
-            differences = differences & "{Empty}***"
+        Do While columns < maxFields
+            values(rows - 2, columns) = "{Empty}"
             columns = columns + 1
             Loop
-        differences = differences & "\\\"
         RS1.MoveNext
         Loop
     Do While rows < maxRows
         For I = 0 to maxFields-1
-            differences = differences & "{Empty}***"
+            values(rows - 2, I) = "{Empty}"
         Next
-        differences = differences & "\\\"
         rows = rows + 1
     Loop
-    getValues = differences
+    RS1.Close
+    getValues = values
     End Function
 
 Sub Pr(S)
@@ -203,24 +185,19 @@ If Request.QueryString.Count <> 0 Then
             If maxAttempt > maxFields Then
                 min = maxFields
                 maxFields = maxAttempt
-                colName = getColumnHeaders(sheet,Request.QueryString("File1"), maxFields)
             Else
                 min = maxAttempt
-                colName = getColumnHeaders(sheet,Request.QueryString("File2"), maxFields)
             End If
-            colNameSplit = Split(colName, "\")
             values1 = getValues(sheet, Request.QueryString("File1"), maxRows, maxFields)
             values2 = getValues(sheet, Request.QueryString("File2"), maxRows, maxFields)
-            valuesplit = Split(Replace(values1,"\\\",""),"***")
-            valuesplit2 = Split(Replace(values2,"\\\",""),"***")
             filename1 = Request.QueryString("file1")
             filename2 = Request.QueryString("file2")
             Dim I, J, finaldiff, cellValue, cellValue2, column, colRes
             finaldiff = ""
             For I=0 to maxRows-2
                 For J=0 to maxFields - 1
-                    cellValue = valuesplit(maxFields*I + J)
-                    cellValue2 = valuesplit2(maxFields*I + J)
+                    cellValue = values1(I, J)
+                    cellValue2 = values2(I, J)
                     If StrComp(cellValue, cellValue2) <> 0 Then
                         finaldiff1 = finaldiff1 & excelCols(J+1) & "\|\" & I+2 & "\|\" & cellValue & "\|\"
                         finaldiff2 = finaldiff2 & excelCols(J+1) & "\|\" & I+2 & "\|\" & cellValue2 & "\|\"
@@ -232,10 +209,9 @@ If Request.QueryString.Count <> 0 Then
             weboutput = weboutput & "<td style='background-color: #CCFFFF'>" & sheet & "</td>"
             weboutput = weboutput & "<td style='background-color: #FFFFCC'>" & sheet & "</td>"
             If Len(finaldiff1) > 0 Then
-                weboutput = weboutput & "<td><Form action='SheetCompare.asp' method='post'>"
-                weboutput = weboutput & "<input type='hidden' name='full1' value='"&values1&"'>"
-                weboutput = weboutput & "<input type='hidden' name='full2' value='"&values2&"'>"
+                weboutput = weboutput & "<td background-color: #eeeeee><Form action='SheetCompare.asp' method='post'>"
                 weboutput = weboutput & "<input type='hidden' name='fields' value='"&maxFields&"'>"
+                weboutput = weboutput & "<input type='hidden' name='rows' value='"&maxRows&"'>"
                 weboutput = weboutput & "<input type='hidden' name='sheet' value='"&sheet&"'>"
                 weboutput = weboutput & "<input type='hidden' name='file1' value='"&filename1&"'>"
                 weboutput = weboutput & "<input type='hidden' name='file2' value='"&filename2&"'>"
@@ -243,14 +219,14 @@ If Request.QueryString.Count <> 0 Then
                 weboutput = weboutput & "</Form></td></tr>"
                 sheetDifferences = sheetDifferences + 1
             Else
-                weboutput = weboutput & "<td>(No Differences)</td></tr>"
+                weboutput = weboutput & "<td background-color: #eeeeee>(No Differences)</td></tr>"
                 End If
             finaldiff1=""
         Else 
             weboutput = weboutput & "<tr>"
-            weboutput = weboutput & "<td>" & sheet & "</td>"
-            weboutput = weboutput & "<td></td>"
-            weboutput = weboutput & "<td></td>"
+            weboutput = weboutput & "<td style='background-color: #CCFFFF'>" & sheet & "</td>"
+            weboutput = weboutput & "<td style='background-color: #FFFFCC'></td>"
+            weboutput = weboutput & "<td background-color: #eeeeee></td>"
             weboutput = weboutput & "</tr>"
             sheetDifferences = sheetDifferences + 1
             End If

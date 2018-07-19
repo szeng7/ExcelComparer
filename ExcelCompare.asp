@@ -1,4 +1,10 @@
 <html>
+
+<style>
+    td { 
+    background-color: #eeeeee;
+}
+</style>
 <head>
 </head>
 <b>Excel File Comparison</b>
@@ -167,8 +173,8 @@ If Request.QueryString.Count <> 0 Then
     File2Sheets = StrReverse(Replace(File2Sheets,":","",1,1))
     weboutput = "<center><table border='1' cellspacing='0'>"
     weboutput = weboutput & "<tr><td><b>" & Request.QueryString("File1") & " Sheets</b></td>"
-    weboutput = weboutput & "<td><b>" & Request.QueryString("File2") & " Sheets</b></td>"
-    weboutput = weboutput & "<td></td></tr>"
+    weboutput = weboutput & "<td></td>"
+    weboutput = weboutput & "<td><b>" & Request.QueryString("File2") & " Sheets</b></td></tr>"
     sheetDifferences = 0
     Dim colName
     For Each sheet in Split(File1Sheets,":")
@@ -206,27 +212,29 @@ If Request.QueryString.Count <> 0 Then
                 Next
 
             weboutput = weboutput & "<tr>"
-            weboutput = weboutput & "<td style='background-color: #CCFFFF'>" & sheet & "</td>"
-            weboutput = weboutput & "<td style='background-color: #FFFFCC'>" & sheet & "</td>"
             If Len(finaldiff1) > 0 Then
-                weboutput = weboutput & "<td background-color: #eeeeee><Form action='SheetCompare.asp' method='post'>"
+                weboutput = weboutput & "<td style='background-color: #CCFFFF; text-align:center'>" & sheet & "</td>"
+                weboutput = weboutput & "<td style='text-align:center'><Form action='SheetCompare.asp' method='post'>"
                 weboutput = weboutput & "<input type='hidden' name='fields' value='"&maxFields&"'>"
                 weboutput = weboutput & "<input type='hidden' name='rows' value='"&maxRows&"'>"
                 weboutput = weboutput & "<input type='hidden' name='sheet' value='"&sheet&"'>"
                 weboutput = weboutput & "<input type='hidden' name='file1' value='"&filename1&"'>"
                 weboutput = weboutput & "<input type='hidden' name='file2' value='"&filename2&"'>"
                 weboutput = weboutput & "<input type='submit' value='View Differences'>"
-                weboutput = weboutput & "</Form></td></tr>"
+                weboutput = weboutput & "</Form></td>"
                 sheetDifferences = sheetDifferences + 1
+                weboutput = weboutput & "<td style='background-color: #FFFFCC; text-align:center'>" & sheet & "</td></tr>"
             Else
-                weboutput = weboutput & "<td background-color: #eeeeee>(No Differences)</td></tr>"
+                weboutput = weboutput & "<td style='background-color: #909090; text-align:center'>" & sheet & "</td>"
+                weboutput = weboutput & "<td style='background-color: #909090; text-align:center'></td>"
+                weboutput = weboutput & "<td style='background-color: #909090; text-align:center'>" & sheet & "</td></tr>"
                 End If
             finaldiff1=""
         Else 
             weboutput = weboutput & "<tr>"
-            weboutput = weboutput & "<td style='background-color: #CCFFFF'>" & sheet & "</td>"
-            weboutput = weboutput & "<td style='background-color: #FFFFCC'></td>"
-            weboutput = weboutput & "<td background-color: #eeeeee></td>"
+            weboutput = weboutput & "<td style='background-color: #909090; text-align:center'>" & sheet & "</td>"
+            weboutput = weboutput & "<td background-color: #909090></td>"
+            weboutput = weboutput & "<td style='background-color: #909090; text-align:center'></td>"
             weboutput = weboutput & "</tr>"
             sheetDifferences = sheetDifferences + 1
             End If
@@ -237,7 +245,7 @@ If Request.QueryString.Count <> 0 Then
         Else
             weboutput = weboutput & "<tr>"
             weboutput = weboutput & "<td></td>"
-            weboutput = weboutput & "<td>" & sheet & "</td>"
+            weboutput = weboutput & "<td style='text-align:center'>" & sheet & "</td>"
             weboutput = weboutput & "<td></td>"
             weboutput = weboutput & "</tr>"
             sheetDifferences = sheetDifferences + 1

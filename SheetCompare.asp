@@ -126,14 +126,16 @@ End Function
 Dim I, numFields, numRows, file1name, file2name, values1, values2
 'Number of rows to look ahead to decide if an insertion
 Pr Request.Form("sheet") & " Comparison<br>"
-Pr "<center><table width= '80%' border='1' cellspacing='1' style='background-color: black' ><tr><td style='background-color: #FFFFCC' ><b>Column</b></td>"&"<td style='background-color: #CCFFFF'><b>Row</b></td>"&"<td style='background-color: #74A4BC'><b>"&Request.Form("file1")&" Contents</b></td><td style='background-color: #74A4BC'><b>"&Request.Form("file2")&" Contents</b></td>"&"<td style='background-color: #FFFFCC'><b>Column</b></td>"&"<td style='background-color: #CCFFFF'><b>Row</b></td></tr>"
+Pr "<center><table width= '83%' border='1' cellspacing='1' style='background-color: black' >"
+Pr "<tr><td style='background-color: #FFFFCC; width:2%' ><b>Column</b></td>"&"<td style='background-color: #CCFFFF; width:2%'><b>Row</b></td>"&"<td style='background-color: #74A4BC; width:35%'><b>"&Request.Form("file1")&" Contents</b></td>"
+Pr "<td style='width: 20px'></td><td style='background-color: #74A4BC; width:35%'><b>"&Request.Form("file2")&" Contents</b></td>"&"<td style='background-color: #FFFFCC; width:2%'><b>Column</b></td>"&"<td style='background-color: #CCFFFF; width:2%'><b>Row</b></td></tr>"
 file1name = Request.Form("file1")
 file2name = Request.Form("file2")
 numFields = Request.Form("fields")
 numRows = Request.Form("rows")
 values1 = getValues(Request.Form("sheet"), file1name, numRows, numFields)
 values2 = getValues(Request.Form("sheet"), file2name, numRows, numFields)
-Dim J, insertion1, insertion2, rowNum1, rowNum2, offset1, offset2
+Dim J, insertion1, insertion2, rowNum1, rowNum2, offset1, offset2, concat
 I = 0
 rowNum1 = 1
 rowNum2 = 1
@@ -167,21 +169,24 @@ Do While I + offset1 < numRows - 1 And I + offset2 < numRows - 1
     End If
     If insertion1 > 0 Then
         For J = 0 to insertion1 - 1
-            For A = 1 to Ubound(values1, 2)
-                If A = 1 Then
-                    Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum1+J&"</td><td style='background-color: #909090'><i>Inserted Row</i></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td></tr>"
-                End If
-            Next
+                    For A = 0 to numFields-1
+                        concat = concat & values1(I, A) & "|"
+                        Next
+                    Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum1+J&"</td><td style='background-color: #909090'><i>(IR) </i>" &concat&"</td><td style='background-color: #909090'></td>"
+                    Pr "<td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td></tr>"
+                    concat = ""
         Next
         offset1 = offset1 + insertion1
         rowNum1 = rowNum1 + insertion1
     ElseIf insertion2 > 0 Then
         For J = 0 to insertion2 - 1
-            For A = 1 to Ubound(values1, 2)
-                If (A = 1) Then
-                    Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'><i>Inserted Row</i></td><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum2+J&"</td></tr>"
-                End If
-            Next
+                    concat = concat & numFields
+                    For A = 0 to numFields-1
+                        concat = concat & values2(I, A) & "|"
+                        Next
+                    Pr "<tr><td style='background-color: #909090'></td><td style='background-color: #909090'></td><td style='background-color: #909090'></td>"
+                    Pr "<td style='background-color: #909090'></td><td style='background-color: #909090'><i>(IR) </i>" &concat&"</td><td style='background-color: #909090'></td><td style='background-color: #909090'>"&rowNum2+J&"</td></tr>"
+                    concat = ""
         Next
         offset2 = offset2 + insertion2
         rowNum2 = rowNum2 + insertion2
@@ -189,7 +194,7 @@ Do While I + offset1 < numRows - 1 And I + offset2 < numRows - 1
         For J = 0 to Ubound(values1, 2)
             If StrComp(values1(I+offset1, J), values2(I+offset2, J)) <> 0 Then
                 Pr "<tr><td style='background-color: #FFFFCC' >"&excelCols(J+1)&"</td><td style='background-color: #CCFFFF'>"&rowNum1&"</td>"
-                Pr "<td>"&values1(I+offset1, J)&"</td><td>"&values2(I+offset2, J)&"</td>" 
+                Pr "<td>"&values1(I+offset1, J)&"</td><td></td><td>"&values2(I+offset2, J)&"</td>" 
                 Pr "<td style='background-color: #FFFFCC'>"&excelCols(J+1)&"</td><td style='background-color: #CCFFFF'>"&rowNum2&"</td></tr>"
             End If
         Next
